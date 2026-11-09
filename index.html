@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#faf9f6">
+  <meta name="description" content="Личный список задач с метками и сохранением на устройстве.">
+  <title>Мои задачи — Дела</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./planner.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <svg class="symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4.3 4.3L19 6.8"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="3"/><path d="M7.5 3v4m9-4v4M4 10h16M8 14h2m3 0h2"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 6.5h15M9 6V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V6M6 7l.8 12A2 2 0 0 0 9 21h6a2 2 0 0 0 2.2-2L18 7M10 10.5v6M14 10.5v6"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3.5 4h8l9 9a1.5 1.5 0 0 1 0 2l-6 6a1.5 1.5 0 0 1-2 0l-9-9z"/><circle cx="8.2" cy="8.6" r="1"/></symbol>
+    <symbol id="i-angle" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
+    <symbol id="i-sort" viewBox="0 0 24 24"><path d="M4 6h15M4 12h10M4 18h5"/></symbol>
+    <symbol id="i-device" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4m-4-11 2.6 2.6L16 7.5"/></symbol>
+  </svg>
+  <header class="masthead">
+    <div class="masthead-inner wrap">
+      <div class="brand"><span class="brand-icon" aria-hidden="true"><svg><use href="#i-check"/></svg></span>Дела<span class="brand-period">.</span></div>
+      <time id="today"><svg class="icon" aria-hidden="true"><use href="#i-cal"/></svg><span></span></time>
+    </div>
+  </header>
+  <main class="wrap">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <h1 id="page-title">Мои задачи<span>.</span></h1>
+        <p id="progress-caption"></p>
+        <div class="progress-line">
+          <progress id="progress" max="100" value="0" aria-label="Выполнение задач"></progress>
+          <strong id="percentage"></strong>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true"><canvas id="planner" width="760" height="440"></canvas></div>
+    </section>
+
+    <form id="add-task" aria-label="Новая задача" autocomplete="off">
+      <div class="entry-field">
+        <input id="task-title" name="title" aria-label="Название новой задачи" placeholder="Что нужно сделать?" maxlength="240" required>
+        <label class="select-wrap category-picker">
+          <svg class="icon" aria-hidden="true"><use href="#i-tag"/></svg>
+          <span class="select-text" id="category-text">Метка</span>
+          <svg class="icon chevron" aria-hidden="true"><use href="#i-angle"/></svg>
+          <select id="category" aria-label="Метка новой задачи">
+            <option value="">Без метки</option><option value="work">Работа</option><option value="personal">Личное</option><option value="study">Учёба</option><option value="home">Дом</option>
+          </select>
+        </label>
+      </div>
+      <button class="add-button" type="submit"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Добавить</button>
+    </form>
+
+    <section class="tasks" aria-label="Список задач">
+      <div class="toolbar">
+        <div class="filters" role="group" aria-label="Показать задачи">
+          <button type="button" data-filter="all" aria-pressed="true">Все <span></span></button>
+          <button type="button" data-filter="active" aria-pressed="false">Активные <span></span></button>
+          <button type="button" data-filter="done" aria-pressed="false">Готовые <span></span></button>
+        </div>
+        <label class="select-wrap sort-picker">
+          <svg class="icon" aria-hidden="true"><use href="#i-sort"/></svg>
+          <span class="select-text" id="sort-text">По порядку</span>
+          <svg class="icon chevron" aria-hidden="true"><use href="#i-angle"/></svg>
+          <select id="sort" aria-label="Порядок задач"><option value="default">По порядку</option><option value="oldest">Сначала старые</option><option value="alpha">По алфавиту</option></select>
+        </label>
+      </div>
+      <ul id="task-list"></ul>
+      <template id="task-row">
+        <li class="task">
+          <label class="task-label">
+            <span class="check">
+              <input type="checkbox">
+              <span class="check-box"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span>
+            </span>
+            <span class="task-name"></span>
+          </label>
+          <span class="tag"></span>
+          <button class="delete-button" type="button" title="Удалить задачу"><svg class="icon" aria-hidden="true"><use href="#i-trash"/></svg></button>
+        </li>
+      </template>
+      <p id="empty-state" hidden></p>
+    </section>
+    <footer class="storage-status"><svg class="icon" aria-hidden="true"><use href="#i-device"/></svg><span id="storage-status"></span></footer>
+    <div class="sr-only" role="status" id="announcement"></div>
+  </main>
+</body>
+</html>
